@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src import config
 from src.apis.common import common_router
 from src.apis.posts import post_router
-from src.database import close_db, create_db_and_tables
+from src.database import close_db, close_redis, create_db_and_tables
 
 
 @asynccontextmanager
@@ -15,6 +15,7 @@ async def lifespan(app: FastAPI):
     await create_db_and_tables()
     yield
     await close_db()
+    await close_redis()
 
 
 app = FastAPI(lifespan=lifespan)
