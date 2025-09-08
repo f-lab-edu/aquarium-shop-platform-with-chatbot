@@ -1,8 +1,9 @@
+import re
 import datetime
 from typing import Annotated, Optional
 from fastapi import Depends, HTTPException
 from passlib.context import CryptContext
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -10,6 +11,7 @@ from src.apis.exceptions.custom_exceptions import (
     AlreadyRegisteredEmailException,
     AlreadyRegisteredUsernameException,
 )
+from src.apis.exceptions.password_exceptions import PasswordMissingDigitException
 from src.database import get_session
 from src.models.user import User, UserRole
 
@@ -21,6 +23,13 @@ class AdminCreate(BaseModel):
     email: EmailStr
     password: str
     phone: Optional[str] = None
+
+    @field_validator("password")
+    def validate_password(cls, value):
+        # TODO: 추후에 비밀번호 validation 추가하기
+        if not re.search(r"[0-9]", value):
+            raise PasswordMissingDigitException()
+        return value
 
 
 class CreateAdminResponse(BaseModel):
