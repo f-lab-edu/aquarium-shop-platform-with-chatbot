@@ -1,6 +1,6 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
+from sqlmodel.ext.asyncio.session import AsyncSession
 import redis.asyncio as redis
 
 from src import config
@@ -16,16 +16,13 @@ engine = create_async_engine(
     pool_recycle=config.db.pool_recycle,
 )
 
-# 세션 팩토리 생성
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
 # Redis 연결
 redis_client = redis.from_url(config.redis.url, decode_responses=True)
 
 
 async def get_session() -> AsyncSession:
     """데이터베이스 세션 의존성"""
-    async with async_session() as session:
+    async with AsyncSession(engine) as session:
         yield session
 
 

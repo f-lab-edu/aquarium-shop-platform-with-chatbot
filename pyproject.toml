@@ -18,6 +18,8 @@ greenlet = "^3.0.2"
 alembic = "^1.16.5"
 dependency-injector = "^4.48.1"
 psycopg2-binary = "^2.9.10"
+passlib = "^1.7.4"
+bcrypt = "^4.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
