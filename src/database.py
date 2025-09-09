@@ -5,16 +5,19 @@ import redis.asyncio as redis
 
 from src import config
 
+# 데이터베이스 엔진 생성
+engine_params = {"url": config.db.url, "echo": config.db.echo}
 
-# PostgreSQL 엔진 생성 - 환경별 설정 적용
-engine = create_async_engine(
-    url=config.db.url,
-    echo=config.db.echo,
-    pool_size=config.db.pool_size,
-    max_overflow=config.db.max_overflow,
-    pool_pre_ping=True,
-    pool_recycle=config.db.pool_recycle,
-)
+# SQLite가 아닌 경우에만 PostgreSQL 전용 설정 추가
+if not config.db.url.startswith("sqlite"):
+    engine_params.update({
+        "pool_size": config.db.pool_size,
+        "max_overflow": config.db.max_overflow,
+        "pool_pre_ping": True,
+        "pool_recycle": config.db.pool_recycle,
+    })
+
+engine = create_async_engine(**engine_params)
 
 # Redis 연결
 redis_client = redis.from_url(config.redis.url, decode_responses=True)

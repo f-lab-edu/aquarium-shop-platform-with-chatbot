@@ -1,20 +1,24 @@
+import os
 import pytest_asyncio
 from httpx import AsyncClient
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.database import close_db, create_db_and_tables, engine
+from src.database import create_db_and_tables, engine
 from src.main import app
 
+# 테스트용 SQLite 설정
+os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
 
-@pytest_asyncio.fixture(scope="function")
+
+@pytest_asyncio.fixture
 async def client() -> AsyncClient:
-    async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as client:
-        await create_db_and_tables()
-        yield client
-        await close_db()
+    await create_db_and_tables()
+    
+    async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as ac:
+        yield ac
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture
 async def session() -> AsyncSession:
     async with AsyncSession(engine) as session:
         yield session
