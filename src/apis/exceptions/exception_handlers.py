@@ -7,9 +7,7 @@ from src.apis.exceptions.custom_exceptions import BaseCustomException
 def register_exception_handlers(app: FastAPI):
     @app.exception_handler(BaseCustomException)
     async def custom_exception_handler(request: Request, exc: BaseCustomException):
-        return JSONResponse(
-            status_code=exc.status_code, content={"detail": exc.message}
-        )
+        return JSONResponse(status_code=exc.status_code, content=exc.to_response())
 
     @app.exception_handler(Exception)
     async def generic_exception_handler(request: Request, exc: Exception):

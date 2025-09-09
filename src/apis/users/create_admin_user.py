@@ -7,11 +7,17 @@ from pydantic import BaseModel, EmailStr, field_validator
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.apis.exceptions.custom_exceptions import (
+from src.apis.exceptions import (
     AlreadyRegisteredEmailException,
     AlreadyRegisteredUsernameException,
+    PasswordMissingDigitException,
+    UsernameTooShortException,
+    InvalidUsernameFormatException,
+    UsernameTooLongException,
+    PasswordMissingLetterException,
+    PasswordTooShortException,
+    InvalidPhoneFormatException,
 )
-from src.apis.exceptions.password_exceptions import PasswordMissingDigitException
 from src.database import get_session
 from src.models.user import User, UserRole
 
@@ -24,11 +30,34 @@ class AdminCreate(BaseModel):
     password: str
     phone: Optional[str] = None
 
+    @field_validator("username")
+    def validate_username(cls, value):
+        if len(value) < 3:
+            raise UsernameTooShortException()
+        if len(value) > 50:
+            raise UsernameTooLongException()
+        if not re.match(r"^[a-zA-Z0-9]+$", value):
+            raise InvalidUsernameFormatException()
+        return value
+
     @field_validator("password")
     def validate_password(cls, value):
-        # TODO: 추후에 비밀번호 validation 추가하기
+        if len(value) < 5:
+            raise PasswordTooShortException()
         if not re.search(r"[0-9]", value):
             raise PasswordMissingDigitException()
+        if not re.search(r"[A-Za-z]", value):
+            raise PasswordMissingLetterException()
+        return value
+
+    def validate_phone(cls, value):
+        if value is None:
+            return value
+        pattern = (
+            r"^(?:\+82\d{1,2}|0\d{2})-\d{3,4}-\d{4}$|^(?:\+82\d{1,2}|0\d{2})\d{7,8}$"
+        )
+        if not re.match(pattern, value):
+            raise InvalidPhoneFormatException()
         return value
 
 
