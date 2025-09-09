@@ -50,6 +50,7 @@ class AdminCreate(BaseModel):
             raise PasswordMissingLetterException()
         return value
 
+    @field_validator("phone")
     def validate_phone(cls, value):
         if value is None:
             return value
