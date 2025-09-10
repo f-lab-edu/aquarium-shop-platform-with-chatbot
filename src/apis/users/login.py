@@ -8,7 +8,7 @@ from fastapi import Depends
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from redis.asyncio import Redis
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 from src import config
 from src.database import get_session, get_redis
@@ -18,7 +18,7 @@ from src.apis.users.utils import pwd_context
 
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    username: str
     password: str
 
 
@@ -33,7 +33,7 @@ async def handler(
     session: Annotated[AsyncSession, Depends(get_session)],
     redis_client: Annotated[Redis, Depends(get_redis)],
 ) -> Token:
-    statement = select(User).where(User.email == login_data.email)
+    statement = select(User).where(User.username == login_data.username)
     result = await session.exec(statement)
     user = result.one_or_none()
 
