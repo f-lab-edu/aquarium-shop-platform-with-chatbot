@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
-import redis.asyncio as redis
+from redis.asyncio import Redis
 
 from src import config
 
@@ -10,17 +10,19 @@ engine_params = {"url": config.db.url, "echo": config.db.echo}
 
 # SQLite가 아닌 경우에만 PostgreSQL 전용 설정 추가
 if not config.db.url.startswith("sqlite"):
-    engine_params.update({
-        "pool_size": config.db.pool_size,
-        "max_overflow": config.db.max_overflow,
-        "pool_pre_ping": True,
-        "pool_recycle": config.db.pool_recycle,
-    })
+    engine_params.update(
+        {
+            "pool_size": config.db.pool_size,
+            "max_overflow": config.db.max_overflow,
+            "pool_pre_ping": True,
+            "pool_recycle": config.db.pool_recycle,
+        }
+    )
 
 engine = create_async_engine(**engine_params)
 
 # Redis 연결
-redis_client = redis.from_url(config.redis.url, decode_responses=True)
+redis_client = Redis.from_url(config.redis.url, decode_responses=True)
 
 
 async def get_session() -> AsyncSession:
@@ -29,7 +31,7 @@ async def get_session() -> AsyncSession:
         yield session
 
 
-async def get_redis() -> redis.Redis:
+async def get_redis() -> Redis:
     """Redis 클라이언트 의존성"""
     return redis_client
 

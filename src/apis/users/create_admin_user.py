@@ -2,7 +2,6 @@ import re
 import datetime
 from typing import Annotated, Optional
 from fastapi import Depends, HTTPException
-from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr, field_validator
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -20,8 +19,7 @@ from src.apis.exceptions import (
 )
 from src.database import get_session
 from src.models.user import User, UserRole
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from src.apis.users.utils import pwd_context
 
 
 class AdminCreate(BaseModel):

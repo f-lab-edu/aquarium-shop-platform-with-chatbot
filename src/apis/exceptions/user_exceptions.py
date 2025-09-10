@@ -69,3 +69,10 @@ class InvalidPhoneFormatException(BaseCustomException):
         message: str = "유효한 전화번호 형식이 아닙니다. 예: 010-1234-5678 또는 +821012345678",
     ):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class InvalidCredentialsException(BaseCustomException):
+    """잘못된 이메일 또는 비밀번호 예외"""
+
+    def __init__(self, message: str = "잘못된 이메일 또는 비밀번호입니다."):
+        super().__init__(message=message, status_code=status.HTTP_401_UNAUTHORIZED)
