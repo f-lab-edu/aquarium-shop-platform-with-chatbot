@@ -1,6 +1,5 @@
 import jwt
 import hashlib
-import json
 
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -46,7 +45,7 @@ async def handler(
     jwt_secret = config.jwt.secret
     access_payload = {
         "sub": str(user.id),
-        "role": "admin",
+        "role": user.role,
         "iat": datetime.now(timezone.utc),
         "exp": datetime.now(timezone.utc)
         + timedelta(minutes=config.jwt.access_expire_minutes),
@@ -55,25 +54,18 @@ async def handler(
 
     refresh_payload = {
         "sub": str(user.id),
-        "role": "admin",
+        "role": user.role,
         "iat": datetime.now(timezone.utc),
         "exp": datetime.now(timezone.utc)
         + timedelta(days=config.jwt.refresh_expire_days),
     }
     refresh_token = jwt.encode(refresh_payload, jwt_secret, algorithm="HS256")
 
-    hashed_access = hashlib.sha256(access_token.encode()).hexdigest()
     hashed_refresh = hashlib.sha256(refresh_token.encode()).hexdigest()
-
     await redis_client.setex(
-        hashed_access,
-        config.jwt.access_expire_minutes * 60,  # minutes to seconds
-        json.dumps({"user_id": user.id, "role": "admin", "type": "access"}),
-    )
-    await redis_client.setex(
-        "refresh:" + hashed_refresh,
-        config.jwt.refresh_expire_days * 86400,  # days to seconds
-        json.dumps({"user_id": user.id, "role": "admin", "type": "refresh"}),
+        f"user:{user.id}:refresh:{hashed_refresh}",
+        config.jwt.refresh_expire_days * 24 * 60 * 60,  # days to seconds
+        "1",
     )
 
     return Token(access_token=access_token, refresh_token=refresh_token)
