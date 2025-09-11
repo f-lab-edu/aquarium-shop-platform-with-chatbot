@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from src.apis.users import create_user, login, refresh_token
+from src.apis.users import create_user, login, create_refresh_token
 
 user_router = APIRouter(tags=["users"])
 
@@ -23,7 +23,7 @@ user_router.add_api_route(
 user_router.add_api_route(
     methods=["POST"],
     path="/token/refresh",
-    endpoint=refresh_token.handler,
+    endpoint=create_refresh_token.handler,
     response_model=login.Token,
     status_code=status.HTTP_200_OK,
 )

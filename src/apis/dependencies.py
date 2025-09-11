@@ -1,6 +1,6 @@
+import jwt
 from typing import Annotated, Optional
 
-import jwt
 from fastapi import Depends, Header, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
