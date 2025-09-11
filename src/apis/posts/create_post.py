@@ -22,7 +22,8 @@ class CreatePostResponse(BaseModel):
 
 
 async def handler(
-    request: CreatePostRequest, session: Annotated[AsyncSession, Depends(get_session)]
+    request: CreatePostRequest,
+    session: Annotated[AsyncSession, Depends(get_session)],
 ) -> CreatePostResponse:
     post = Post(
         title=request.title,
