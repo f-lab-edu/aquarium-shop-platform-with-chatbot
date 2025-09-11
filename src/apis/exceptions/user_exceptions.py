@@ -1,6 +1,6 @@
 from fastapi import status
 
-from src.apis.exceptions.custom_exceptions import BaseCustomException
+from src.apis.exceptions import BaseCustomException
 
 
 class AlreadyRegisteredEmailException(BaseCustomException):
@@ -8,6 +8,7 @@ class AlreadyRegisteredEmailException(BaseCustomException):
 
     def __init__(self, message: str = "이미 등록된 이메일입니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "already_registered_email"
 
 
 class AlreadyRegisteredUsernameException(BaseCustomException):
@@ -15,6 +16,7 @@ class AlreadyRegisteredUsernameException(BaseCustomException):
 
     def __init__(self, message: str = "이미 등록된 아이디입니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "already_registered_username"
 
 
 class UsernameTooShortException(BaseCustomException):
@@ -22,6 +24,7 @@ class UsernameTooShortException(BaseCustomException):
 
     def __init__(self, message: str = "아이디는 최소 3자 이상이어야 합니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "username_too_short"
 
 
 class UsernameTooLongException(BaseCustomException):
@@ -29,6 +32,7 @@ class UsernameTooLongException(BaseCustomException):
 
     def __init__(self, message: str = "아이디는 최대 50자까지 가능합니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "username_too_long"
 
 
 class InvalidUsernameFormatException(BaseCustomException):
@@ -36,6 +40,7 @@ class InvalidUsernameFormatException(BaseCustomException):
 
     def __init__(self, message: str = "아이디는 알파벳, 숫자만 포함할 수 있습니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "invalid_username_format"
 
 
 class PasswordMissingDigitException(BaseCustomException):
@@ -43,6 +48,7 @@ class PasswordMissingDigitException(BaseCustomException):
 
     def __init__(self, message: str = "비밀번호는 최소 하나의 숫자를 포함해야 합니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "password_missing_digit"
 
 
 class PasswordTooShortException(BaseCustomException):
@@ -50,6 +56,7 @@ class PasswordTooShortException(BaseCustomException):
 
     def __init__(self, message: str = "비밀번호는 최소 5자 이상이어야 합니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "password_too_short"
 
 
 class PasswordMissingLetterException(BaseCustomException):
@@ -59,6 +66,7 @@ class PasswordMissingLetterException(BaseCustomException):
         self, message: str = "비밀번호는 최소 한 개의 알파벳을 포함해야 합니다."
     ):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "password_missing_letter"
 
 
 class InvalidPhoneFormatException(BaseCustomException):
@@ -69,6 +77,7 @@ class InvalidPhoneFormatException(BaseCustomException):
         message: str = "유효한 전화번호 형식이 아닙니다. 예: 010-1234-5678 또는 +821012345678",
     ):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
+        self.code = "invalid_phone_format"
 
 
 class InvalidCredentialsException(BaseCustomException):
@@ -76,3 +85,4 @@ class InvalidCredentialsException(BaseCustomException):
 
     def __init__(self, message: str = "잘못된 이메일 또는 비밀번호입니다."):
         super().__init__(message=message, status_code=status.HTTP_401_UNAUTHORIZED)
+        self.code = "invalid_credentials"

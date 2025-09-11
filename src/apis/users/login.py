@@ -1,7 +1,5 @@
-import jwt
 import hashlib
 
-from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi import Depends
 from sqlmodel import select
@@ -10,10 +8,14 @@ from redis.asyncio import Redis
 from pydantic import BaseModel
 
 from src import config
-from src.database import get_session, get_redis
+from src.apis.dependencies import get_session, get_redis
 from src.models.user import User
-from src.apis.exceptions.user_exceptions import InvalidCredentialsException
+from src.apis.exceptions import InvalidCredentialsException
 from src.apis.users.utils import pwd_context
+from src.apis.users.jwt_token_factory import (
+    generate_access_token,
+    generate_refresh_token,
+)
 
 
 class UserLogin(BaseModel):
@@ -42,24 +44,8 @@ async def handler(
     if not pwd_context.verify(login_data.password, user.password):
         raise InvalidCredentialsException()
 
-    jwt_secret = config.jwt.secret
-    access_payload = {
-        "sub": str(user.id),
-        "role": user.role,
-        "iat": datetime.now(timezone.utc),
-        "exp": datetime.now(timezone.utc)
-        + timedelta(minutes=config.jwt.access_expire_minutes),
-    }
-    access_token = jwt.encode(access_payload, jwt_secret, algorithm="HS256")
-
-    refresh_payload = {
-        "sub": str(user.id),
-        "role": user.role,
-        "iat": datetime.now(timezone.utc),
-        "exp": datetime.now(timezone.utc)
-        + timedelta(days=config.jwt.refresh_expire_days),
-    }
-    refresh_token = jwt.encode(refresh_payload, jwt_secret, algorithm="HS256")
+    access_token = generate_access_token(user_id=str(user.id), role=user.role)
+    refresh_token = generate_refresh_token(user_id=str(user.id), role=user.role)
 
     hashed_refresh = hashlib.sha256(refresh_token.encode()).hexdigest()
     await redis_client.setex(

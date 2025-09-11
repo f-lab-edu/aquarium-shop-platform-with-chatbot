@@ -17,7 +17,7 @@ from src.apis.exceptions import (
     PasswordTooShortException,
     InvalidPhoneFormatException,
 )
-from src.database import get_session
+from src.apis.dependencies import get_session
 from src.models.user import User, UserRole
 from src.apis.users.utils import pwd_context
 

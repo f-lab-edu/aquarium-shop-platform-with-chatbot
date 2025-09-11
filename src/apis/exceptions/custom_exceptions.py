@@ -18,6 +18,7 @@ class BaseCustomException(Exception):
         self.loc = loc or ["unknown"]
         self.input = input
         self.ctx = ctx or {}
+        self.code: Optional[str] = None
         super().__init__(self.message)
 
     def to_response(self) -> Dict[str, List[Dict[str, Any]]]:
@@ -29,6 +30,7 @@ class BaseCustomException(Exception):
             "msg": self.message,
             "input": self.input,
             "ctx": self.ctx,
+            "code": self.code,
         }
         return {
             "detail": [dict((k, v) for k, v in error_detail.items() if v is not None)]
@@ -40,3 +42,4 @@ class UnauthorizedException(BaseCustomException):
 
     def __init__(self, message: str = "인증되지 않은 사용자입니다."):
         super().__init__(message=message, status_code=status.HTTP_401_UNAUTHORIZED)
+        self.code = "unauthorized"

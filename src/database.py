@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
 from redis.asyncio import Redis
 
 from src import config
@@ -23,17 +22,6 @@ engine = create_async_engine(**engine_params)
 
 # Redis 연결
 redis_client = Redis.from_url(config.redis.url, decode_responses=True)
-
-
-async def get_session() -> AsyncSession:
-    """데이터베이스 세션 의존성"""
-    async with AsyncSession(engine) as session:
-        yield session
-
-
-async def get_redis() -> Redis:
-    """Redis 클라이언트 의존성"""
-    return redis_client
 
 
 async def create_db_and_tables() -> None:
