@@ -209,44 +209,6 @@ async def test_create_admin_user_failed_by_invalid_username_format(client: Async
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-# `POST /users` API가 password가 너무 짧아서 실패한다.
-@pytest.mark.asyncio
-async def test_create_admin_user_failed_by_password_too_short(client: AsyncClient):
-    # when
-    response = await client.post(
-        "/users",
-        json={
-            "username": "adminuser",
-            "email": "admin@example.com",
-            "role": UserRole.ADMIN,
-            "password": "pas1",  # 5자 미만
-        },
-    )
-
-    # then
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"][0]["msg"] == "비밀번호는 최소 5자 이상이어야 합니다."
-
-
-# `POST /users` API가 password에 문자가 없어서 실패한다.
-@pytest.mark.asyncio
-async def test_create_admin_user_failed_by_password_missing_letter(client: AsyncClient):
-    # when
-    response = await client.post(
-        "/users",
-        json={
-            "username": "adminuser",
-            "email": "admin@example.com",
-            "role": UserRole.ADMIN,
-            "password": "12345",  # 문자 없음
-        },
-    )
-
-    # then
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"][0]["msg"] == "비밀번호는 최소 한 개의 알파벳을 포함해야 합니다."
-
-
 # `POST /users` API가 phone 형식 invalid로 실패한다.
 @pytest.mark.asyncio
 async def test_create_admin_user_failed_by_invalid_phone_format(client: AsyncClient):

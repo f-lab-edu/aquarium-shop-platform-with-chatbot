@@ -5,7 +5,7 @@ from fastapi import Depends
 from pydantic import BaseModel, Field
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.apis.dependencies import CurrentUser, get_current_user, get_session
+from src.apis.dependencies import get_session
 from src.models.post import Post
 
 
@@ -24,11 +24,7 @@ class CreatePostResponse(BaseModel):
 async def handler(
     request: CreatePostRequest,
     session: Annotated[AsyncSession, Depends(get_session)],
-    current_user: Annotated[CurrentUser, Depends(get_current_user)],
 ) -> CreatePostResponse:
-    print(
-        f"[CreatePost] user_id={current_user.id}, username={current_user.username}, role={current_user.role}"
-    )
     post = Post(
         title=request.title,
         content=request.content,

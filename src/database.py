@@ -1,15 +1,18 @@
+from typing import Any
+
 from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlmodel import SQLModel
 
 from src import config
 
-# 데이터베이스 엔진 생성
-engine_params = {"url": config.db.url, "echo": config.db.echo}
 
-# SQLite가 아닌 경우에만 PostgreSQL 전용 설정 추가
-if not config.db.url.startswith("sqlite"):
-    engine_params.update(
+def _build_engine_params(url: str, echo: bool) -> dict[str, Any]:
+    params: dict[str, Any] = {"url": url, "echo": echo}
+    if url.startswith("sqlite"):
+        return params
+
+    params.update(
         {
             "pool_size": config.db.pool_size,
             "max_overflow": config.db.max_overflow,
@@ -17,8 +20,14 @@ if not config.db.url.startswith("sqlite"):
             "pool_recycle": config.db.pool_recycle,
         }
     )
+    return params
 
-engine = create_async_engine(**engine_params)
+
+def create_engine_from_config() -> AsyncEngine:
+    return create_async_engine(**_build_engine_params(config.db.url, config.db.echo))
+
+
+engine = create_engine_from_config()
 
 # Redis 연결
 redis_client = Redis.from_url(config.redis.url, decode_responses=True)
