@@ -5,7 +5,7 @@ from fastapi import Depends
 from pydantic import BaseModel, Field
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.apis.dependencies import get_session, get_current_user, CurrentUser
+from src.apis.dependencies import CurrentUser, get_current_user, get_session
 from src.models.post import Post
 
 

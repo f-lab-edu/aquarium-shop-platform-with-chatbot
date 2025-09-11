@@ -62,9 +62,7 @@ class PasswordTooShortException(BaseCustomException):
 class PasswordMissingLetterException(BaseCustomException):
     """비밀번호에 알파벳이 포함되지 않은 경우의 예외"""
 
-    def __init__(
-        self, message: str = "비밀번호는 최소 한 개의 알파벳을 포함해야 합니다."
-    ):
+    def __init__(self, message: str = "비밀번호는 최소 한 개의 알파벳을 포함해야 합니다."):
         super().__init__(message=message, status_code=status.HTTP_400_BAD_REQUEST)
         self.code = "password_missing_letter"
 

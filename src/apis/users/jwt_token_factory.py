@@ -1,7 +1,7 @@
-import jwt
-
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Any
+from typing import Any, Optional
+
+import jwt
 
 from src import config
 from src.apis.exceptions import UnauthorizedException

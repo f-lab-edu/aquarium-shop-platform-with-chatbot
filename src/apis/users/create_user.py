@@ -1,25 +1,26 @@
-import re
 import datetime
+import re
 from typing import Annotated, Optional
+
 from fastapi import Depends, HTTPException
 from pydantic import BaseModel, EmailStr, field_validator
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.apis.dependencies import get_session
 from src.apis.exceptions import (
     AlreadyRegisteredEmailException,
     AlreadyRegisteredUsernameException,
-    PasswordMissingDigitException,
-    UsernameTooShortException,
+    InvalidPhoneFormatException,
     InvalidUsernameFormatException,
-    UsernameTooLongException,
+    PasswordMissingDigitException,
     PasswordMissingLetterException,
     PasswordTooShortException,
-    InvalidPhoneFormatException,
+    UsernameTooLongException,
+    UsernameTooShortException,
 )
-from src.apis.dependencies import get_session
-from src.models.user import User, UserRole
 from src.apis.users.utils import pwd_context
+from src.models.user import User, UserRole
 
 
 class UserCreate(BaseModel):

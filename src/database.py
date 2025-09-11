@@ -1,6 +1,6 @@
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
-from redis.asyncio import Redis
 
 from src import config
 

@@ -1,21 +1,21 @@
 import hashlib
-
 from typing import Annotated
+
 from fastapi import Depends
+from pydantic import BaseModel
+from redis.asyncio import Redis
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from redis.asyncio import Redis
-from pydantic import BaseModel
 
 from src import config
-from src.apis.dependencies import get_session, get_redis
-from src.models.user import User
+from src.apis.dependencies import get_redis, get_session
 from src.apis.exceptions import InvalidCredentialsException
-from src.apis.users.utils import pwd_context
 from src.apis.users.jwt_token_factory import (
     generate_access_token,
     generate_refresh_token,
 )
+from src.apis.users.utils import pwd_context
+from src.models.user import User
 
 
 class UserLogin(BaseModel):

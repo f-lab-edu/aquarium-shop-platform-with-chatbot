@@ -1,19 +1,19 @@
 import hashlib
-
 from typing import Annotated
+
 from fastapi import Depends
-from redis.asyncio import Redis
 from pydantic import BaseModel
+from redis.asyncio import Redis
 
 from src import config
 from src.apis.dependencies import get_redis
 from src.apis.exceptions import UnauthorizedException
-from src.apis.users.login import Token
 from src.apis.users.jwt_token_factory import (
+    decode_and_validate,
     generate_access_token,
     generate_refresh_token,
-    decode_and_validate,
 )
+from src.apis.users.login import Token
 
 
 class RefreshRequest(BaseModel):
@@ -39,9 +39,7 @@ async def handler(
     key = f"user:{user_id}:refresh:{hashed_refresh}"
     exists = await redis_client.get(key)
     if not exists:
-        raise UnauthorizedException(
-            "이미 사용되었거나 유효하지 않은 리프레시 토큰입니다."
-        )
+        raise UnauthorizedException("이미 사용되었거나 유효하지 않은 리프레시 토큰입니다.")
 
     await redis_client.delete(key)
 

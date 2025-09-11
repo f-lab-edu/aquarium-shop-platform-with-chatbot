@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from src.apis.users import create_user, login, create_refresh_token
+from src.apis.users import create_refresh_token, create_user, login
 
 user_router = APIRouter(tags=["users"])
 
