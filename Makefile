@@ -17,7 +17,7 @@ install-dev:
 	poetry install && poetry run pre-commit install
 
 run:
-	export PYTHONPATH=$PYTHONPATH:$(pwd) && poetry run python src/main.py
+	export PYTHONPATH=$PYTHONPATH:$(pwd) && export WEB_PORT=8001 && poetry run python src/main.py
 
 test:
 	poetry run pytest .
