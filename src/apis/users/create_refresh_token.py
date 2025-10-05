@@ -8,12 +8,12 @@ from redis.asyncio import Redis
 from src import config
 from src.apis.dependencies import get_redis
 from src.apis.exceptions import UnauthorizedException
-from src.apis.users.jwt_token_factory import (
+from src.apis.users.post_login import Token
+from src.services.auth import (
     decode_and_validate,
     generate_access_token,
     generate_refresh_token,
 )
-from src.apis.users.post_login import Token
 
 
 class RefreshRequest(BaseModel):

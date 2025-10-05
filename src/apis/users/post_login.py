@@ -10,16 +10,13 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src import config
 from src.apis.dependencies import get_redis, get_session
 from src.apis.exceptions import InvalidCredentialsException
-from src.apis.users.jwt_token_factory import (
-    generate_access_token,
-    generate_refresh_token,
-)
 from src.apis.users.utils import pwd_context
 from src.models.user import User
+from src.services.auth import generate_access_token, generate_refresh_token
 
 
 class UserLogin(BaseModel):
-    username: str
+    email: str
     password: str
 
 
@@ -34,7 +31,7 @@ async def handler(
     session: Annotated[AsyncSession, Depends(get_session)],
     redis_client: Annotated[Redis, Depends(get_redis)],
 ) -> Token:
-    statement = select(User).where(User.username == login_data.username)
+    statement = select(User).where(User.email == login_data.email)
     result = await session.exec(statement)
     user = result.one_or_none()
 
