@@ -18,7 +18,7 @@ async def test_login_successfully(client: AsyncClient, session: AsyncSession):
     """유효한 email과 password로 로그인이 성공한다."""
     # given
     # 테스트용 사용자 생성
-    test_password = "testpassword123"
+    test_password = "testpassword123"  # NOSONAR
     test_user = User(
         username="testuser",
         email="test@example.com",
@@ -73,7 +73,7 @@ async def test_login_failed_by_nonexistent_email(client: AsyncClient):
         "/login",
         json={
             "email": "nonexistent@example.com",
-            "password": "password123",
+            "password": "password123",  # NOSONAR
         },
     )
 
@@ -93,7 +93,7 @@ async def test_login_failed_by_wrong_password(
     test_user = User(
         username="testuser",
         email="test@example.com",
-        password=pwd_context.hash("correctpassword123"),
+        password=pwd_context.hash("correctpassword123"),  # NOSONAR
         role=UserRole.CUSTOMER,
         is_active=True,
     )
@@ -105,7 +105,7 @@ async def test_login_failed_by_wrong_password(
         "/login",
         json={
             "email": "test@example.com",
-            "password": "wrongpassword123",
+            "password": "wrongpassword123",  # NOSONAR
         },
     )
 
@@ -124,7 +124,7 @@ async def test_login_failed_by_invalid_email_format(client: AsyncClient):
         "/login",
         json={
             "email": "invalid-email",
-            "password": "password123",
+            "password": "password123",  # NOSONAR
         },
     )
 
@@ -142,7 +142,7 @@ async def test_login_failed_by_missing_field(client: AsyncClient):
     response = await client.post(
         "/login",
         json={
-            "password": "password123",
+            "password": "password123",  # NOSONAR
         },
     )
 
@@ -165,7 +165,7 @@ async def test_login_failed_by_missing_field(client: AsyncClient):
 async def test_login_with_different_roles(client: AsyncClient, session: AsyncSession):
     """다양한 role의 사용자가 로그인할 수 있다."""
     # given - SELLER 사용자
-    seller_password = "sellerpass123"
+    seller_password = "sellerpass123"  # NOSONAR
     seller = User(
         username="seller",
         email="seller@example.com",
@@ -176,7 +176,7 @@ async def test_login_with_different_roles(client: AsyncClient, session: AsyncSes
     session.add(seller)
 
     # ADMIN 사용자
-    admin_password = "adminpass123"
+    admin_password = "adminpass123"  # NOSONAR
     admin = User(
         username="admin",
         email="admin@example.com",
@@ -218,7 +218,7 @@ async def test_login_with_different_roles(client: AsyncClient, session: AsyncSes
 async def test_login_token_expiry_times(client: AsyncClient, session: AsyncSession):
     """토큰의 만료 시간이 올바르게 설정된다."""
     # given
-    test_password = "testpassword123"
+    test_password = "testpassword123"  # NOSONAR
     test_user = User(
         username="testuser",
         email="test@example.com",
