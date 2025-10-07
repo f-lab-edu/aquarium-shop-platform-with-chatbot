@@ -10,35 +10,20 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.apis.dependencies import get_session
 from src.apis.exceptions import (
     AlreadyRegisteredEmailException,
-    AlreadyRegisteredUsernameException,
     InvalidPhoneFormatException,
-    InvalidUsernameFormatException,
     PasswordMissingDigitException,
     PasswordMissingLetterException,
     PasswordTooShortException,
-    UsernameTooLongException,
-    UsernameTooShortException,
 )
 from src.apis.users.utils import pwd_context
 from src.models.user import User, UserRole
 
 
 class UserCreate(BaseModel):
-    username: str
     email: EmailStr
     password: str
     role: UserRole
     phone: Optional[str] = None
-
-    @field_validator("username")
-    def validate_username(cls, value):
-        if len(value) < 3:
-            raise UsernameTooShortException()
-        if len(value) > 50:
-            raise UsernameTooLongException()
-        if not re.match(r"^[a-zA-Z0-9]+$", value):
-            raise InvalidUsernameFormatException()
-        return value
 
     @field_validator("password")
     def validate_password(cls, value):
@@ -64,7 +49,7 @@ class UserCreate(BaseModel):
 
 class CreateUserResponse(BaseModel):
     id: int
-    username: str
+    email: EmailStr
     created_at: datetime.datetime
 
 
@@ -77,17 +62,10 @@ async def handler(
     if existing_user:
         raise AlreadyRegisteredEmailException()
 
-    stmt = select(User).where(User.username == user_data.username)
-    result = await session.exec(stmt)
-    existing_username = result.one_or_none()
-    if existing_username:
-        raise AlreadyRegisteredUsernameException()
-
     hashed_password = pwd_context.hash(user_data.password)
 
     try:
         new_user = User(
-            username=user_data.username,
             email=user_data.email,
             password=hashed_password,
             role=user_data.role,
@@ -100,5 +78,5 @@ async def handler(
     await session.commit()
     await session.refresh(new_user)
     return CreateUserResponse(
-        id=new_user.id, username=new_user.username, created_at=new_user.created_at
+        id=new_user.id, email=new_user.email, created_at=new_user.created_at
     )
