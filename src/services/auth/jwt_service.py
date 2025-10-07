@@ -12,11 +12,12 @@ def _now_utc() -> datetime:
 
 
 def generate_access_token(
-    user_id: str, role: str, now: Optional[datetime] = None
+    user_id: str, email: str, role: str, now: Optional[datetime] = None
 ) -> str:
     current_time = now or _now_utc()
     payload = {
         "sub": str(user_id),
+        "email": email,
         "role": role,
         "iat": current_time,
         "exp": current_time + timedelta(minutes=config.jwt.access_expire_minutes),
@@ -25,11 +26,12 @@ def generate_access_token(
 
 
 def generate_refresh_token(
-    user_id: str, role: str, now: Optional[datetime] = None
+    user_id: str, email: str, role: str, now: Optional[datetime] = None
 ) -> str:
     current_time = now or _now_utc()
     payload = {
         "sub": str(user_id),
+        "email": email,
         "role": role,
         "iat": current_time,
         "exp": current_time + timedelta(days=config.jwt.refresh_expire_days),

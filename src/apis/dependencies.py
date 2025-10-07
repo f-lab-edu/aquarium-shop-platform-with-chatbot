@@ -35,7 +35,7 @@ async def get_redis() -> Redis:
 
 class CurrentUser(BaseModel):
     id: int
-    username: str
+    email: str
     role: str
 
 
@@ -68,7 +68,7 @@ async def get_current_user(
         raise InvalidTokenException("토큰 payload에 사용자 정보가 없습니다.")
 
     statement = (
-        select(User.id, User.username, User.role, User.is_active)
+        select(User.id, User.email, User.role, User.is_active)
         .where(User.id == user_id)
         .limit(1)
     )
@@ -77,12 +77,12 @@ async def get_current_user(
     if not row:
         raise InactiveOrInvalidUserException()
 
-    user_id_value, username_value, role_value, is_active_value = row
+    user_id_value, email_value, role_value, is_active_value = row
     if not is_active_value:
         raise InactiveOrInvalidUserException()
 
     return CurrentUser(
         id=user_id_value,
-        username=username_value or "",
+        email=email_value or "",
         role=str(role_value),
     )

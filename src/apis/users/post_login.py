@@ -41,8 +41,12 @@ async def handler(
     if not pwd_context.verify(login_data.password, user.password):
         raise InvalidCredentialsException()
 
-    access_token = generate_access_token(user_id=str(user.id), role=user.role)
-    refresh_token = generate_refresh_token(user_id=str(user.id), role=user.role)
+    access_token = generate_access_token(
+        user_id=str(user.id), email=user.email, role=user.role
+    )
+    refresh_token = generate_refresh_token(
+        user_id=str(user.id), email=user.email, role=user.role
+    )
 
     hashed_refresh = hashlib.sha256(refresh_token.encode()).hexdigest()
     await redis_client.setex(

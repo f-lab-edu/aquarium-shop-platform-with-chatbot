@@ -29,6 +29,7 @@ async def handler(
     payload = decode_and_validate(refresh_token, token_kind="리프레시 토큰")
 
     user_id = payload.get("sub")
+    email = payload.get("email")
     role = payload.get("role")
     if not user_id:
         raise UnauthorizedException("리프레시 토큰에 사용자 정보가 없습니다.")
@@ -43,8 +44,10 @@ async def handler(
 
     await redis_client.delete(key)
 
-    access_token = generate_access_token(user_id=str(user_id), role=role)
-    new_refresh_token = generate_refresh_token(user_id=str(user_id), role=role)
+    access_token = generate_access_token(user_id=str(user_id), email=email, role=role)
+    new_refresh_token = generate_refresh_token(
+        user_id=str(user_id), email=email, role=role
+    )
 
     new_hashed_refresh = hashlib.sha256(new_refresh_token.encode()).hexdigest()
     await redis_client.setex(
