@@ -1,7 +1,7 @@
 import hashlib
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Response
 from pydantic import BaseModel
 from redis.asyncio import Redis
 from sqlmodel import select
@@ -22,12 +22,12 @@ class UserLogin(BaseModel):
 
 class Token(BaseModel):
     access_token: str
-    refresh_token: str
     token_type: str = "bearer"
 
 
 async def handler(
     login_data: UserLogin,
+    response: Response,
     session: Annotated[AsyncSession, Depends(get_session)],
     redis_client: Annotated[Redis, Depends(get_redis)],
 ) -> Token:
@@ -55,4 +55,15 @@ async def handler(
         "1",
     )
 
-    return Token(access_token=access_token, refresh_token=refresh_token)
+    # Refresh token을 httpOnly cookie로 설정
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,  # 개발 환경에서는 False (프로덕션에서는 True)
+        samesite="lax",  # 개발 환경에서는 lax (프로덕션에서는 strict)
+        max_age=config.jwt.refresh_expire_days * 24 * 60 * 60,  # 7일 (초 단위)
+        path="/",  # 모든 경로에서 접근 가능
+    )
+
+    return Token(access_token=access_token)

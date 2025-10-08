@@ -44,10 +44,10 @@ async def test_login_successfully(client: AsyncClient, session: AsyncSession):
     # 응답 상태 코드가 200이어야 한다
     assert response.status_code == status.HTTP_200_OK
 
-    # 응답 본문에 토큰들이 포함되어야 한다
+    # 응답 본문에 access_token만 포함되어야 한다 (refresh_token은 cookie로)
     data = response.json()
     assert "access_token" in data
-    assert "refresh_token" in data
+    assert "refresh_token" not in data
     assert data["token_type"] == "bearer"
 
     # access token이 유효한 JWT여야 한다
@@ -57,10 +57,13 @@ async def test_login_successfully(client: AsyncClient, session: AsyncSession):
     assert access_payload["sub"] == str(test_user.id)
     assert access_payload["role"] == test_user.role
 
+    # refresh token이 httpOnly cookie로 설정되어야 한다
+    cookies = response.cookies
+    assert "refresh_token" in cookies
+    refresh_token = cookies["refresh_token"]
+
     # refresh token이 유효한 JWT여야 한다
-    refresh_payload = jwt.decode(
-        data["refresh_token"], config.jwt.secret, algorithms=["HS256"]
-    )
+    refresh_payload = jwt.decode(refresh_token, config.jwt.secret, algorithms=["HS256"])
     assert refresh_payload["sub"] == str(test_user.id)
     assert refresh_payload["role"] == test_user.role
 
@@ -251,10 +254,9 @@ async def test_login_token_expiry_times(client: AsyncClient, session: AsyncSessi
     # 1분의 여유를 두고 검증
     assert abs((access_exp - expected_access_exp).total_seconds()) < 60
 
-    # Refresh token 만료 시간 확인
-    refresh_payload = jwt.decode(
-        data["refresh_token"], config.jwt.secret, algorithms=["HS256"]
-    )
+    # Refresh token 만료 시간 확인 (cookie에서 가져옴)
+    refresh_token = response.cookies["refresh_token"]
+    refresh_payload = jwt.decode(refresh_token, config.jwt.secret, algorithms=["HS256"])
     refresh_exp = datetime.fromtimestamp(refresh_payload["exp"], tz=timezone.utc)
     expected_refresh_exp = now + timedelta(days=config.jwt.refresh_expire_days)
     # 1분의 여유를 두고 검증
