@@ -60,8 +60,8 @@ async def handler(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,  # 개발 환경에서는 False (프로덕션에서는 True)
-        samesite="lax",  # 개발 환경에서는 lax (프로덕션에서는 strict)
+        secure=config.app.use_secure_cookies,  # 프로덕션에서만 True
+        samesite="strict" if config.app.is_production else "lax",
         max_age=config.jwt.refresh_expire_days * 24 * 60 * 60,  # 7일 (초 단위)
         path="/",  # 모든 경로에서 접근 가능
     )

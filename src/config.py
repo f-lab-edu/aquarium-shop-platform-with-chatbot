@@ -36,6 +36,11 @@ class AppConfig(BaseSettings):
     def is_production(self) -> bool:
         return self.environment == "production"
 
+    @property
+    def use_secure_cookies(self) -> bool:
+        """프로덕션 환경에서만 secure cookie 사용"""
+        return self.is_production
+
 
 class JWTConfig(BaseSettings):
     secret: str = Field(default="dev-secret", alias="JWT_SECRET")

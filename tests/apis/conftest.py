@@ -1,8 +1,10 @@
+from unittest.mock import AsyncMock
+
 import pytest_asyncio
 from httpx import AsyncClient
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.apis.dependencies import get_session
+from src.apis.dependencies import get_redis, get_session
 from src.main import app
 from src.testing.db import build_test_engine, create_all, drop_all
 
@@ -17,7 +19,17 @@ async def client() -> AsyncClient:
         async with AsyncSession(test_engine) as session:
             yield session
 
+    # Redis mock 설정
+    mock_redis = AsyncMock()
+    mock_redis.setex = AsyncMock(return_value=True)
+    mock_redis.get = AsyncMock(return_value=None)
+    mock_redis.delete = AsyncMock(return_value=1)
+
+    async def override_get_redis():
+        return mock_redis
+
     app.dependency_overrides[get_session] = override_get_session
+    app.dependency_overrides[get_redis] = override_get_redis
 
     async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as ac:
         yield ac
