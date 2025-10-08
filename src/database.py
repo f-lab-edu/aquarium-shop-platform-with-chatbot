@@ -1,37 +1,36 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from typing import Any
+
+from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlmodel import SQLModel
-import redis.asyncio as redis
 
 from src import config
 
 
-# PostgreSQL 엔진 생성 - 환경별 설정 적용
-engine = create_async_engine(
-    url=config.db.url,
-    echo=config.db.echo,
-    pool_size=config.db.pool_size,
-    max_overflow=config.db.max_overflow,
-    pool_pre_ping=True,
-    pool_recycle=config.db.pool_recycle,
-)
+def _build_engine_params(url: str, echo: bool) -> dict[str, Any]:
+    params: dict[str, Any] = {"url": url, "echo": echo}
+    if url.startswith("sqlite"):
+        return params
 
-# 세션 팩토리 생성
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    params.update(
+        {
+            "pool_size": config.db.pool_size,
+            "max_overflow": config.db.max_overflow,
+            "pool_pre_ping": True,
+            "pool_recycle": config.db.pool_recycle,
+        }
+    )
+    return params
+
+
+def create_engine_from_config() -> AsyncEngine:
+    return create_async_engine(**_build_engine_params(config.db.url, config.db.echo))
+
+
+engine = create_engine_from_config()
 
 # Redis 연결
-redis_client = redis.from_url(config.redis.url, decode_responses=True)
-
-
-async def get_session() -> AsyncSession:
-    """데이터베이스 세션 의존성"""
-    async with async_session() as session:
-        yield session
-
-
-async def get_redis() -> redis.Redis:
-    """Redis 클라이언트 의존성"""
-    return redis_client
+redis_client = Redis.from_url(config.redis.url, decode_responses=True)
 
 
 async def create_db_and_tables() -> None:

@@ -15,13 +15,12 @@ class UserRole(str, Enum):
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: Optional[str] = Field(default=None, max_length=50)
-    email: Optional[EmailStr] = Field(
-        default=None, sa_type=String, max_length=100, unique=True
-    )
+    email: EmailStr = Field(sa_type=String, max_length=100, unique=True)
     password: Optional[str] = Field(default=None, max_length=100)
-    kakao_auth_token: Optional[str] = Field(default=None, max_length=100)
     role: UserRole = Field(default=UserRole.CUSTOMER)
     phone: Optional[str] = Field(default=None, max_length=20)
     points: int = Field(default=0)
     is_active: bool = Field(default=True)
+    is_kakao_user: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
